@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, Space_Mono } from "next/font/google";
 import "./globals.css";
+import { getBaseUrl } from "@/lib/api";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,13 +22,7 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL
-  ? process.env.NEXT_PUBLIC_APP_URL.startsWith("http")
-    ? process.env.NEXT_PUBLIC_APP_URL
-    : `https://${process.env.NEXT_PUBLIC_APP_URL}`
-  : process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+const appUrl = getBaseUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
