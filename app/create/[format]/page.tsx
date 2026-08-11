@@ -125,6 +125,18 @@ export default function CreatePage({
 
   // ── Handlers ────────────────────────────────────────────
 
+  // Jump back to any already-completed step by clicking its dot
+  const handleStepClick = useCallback(
+    (targetStep: Step) => {
+      const targetIdx = stepsForFormat.indexOf(targetStep);
+      if (targetIdx < currentStepIndex) {
+        setStep(targetStep);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentStepIndex, stepsForFormat]
+  );
+
   const handleFormatChange = useCallback((f: Format) => {
     setFormat(f);
     setStep("upload");
@@ -376,33 +388,53 @@ export default function CreatePage({
           }}
         >
           <div className="flex items-center justify-between mb-2">
-            {stepsForFormat.map((s, i) => (
-              <div key={s} className="flex items-center flex-1">
-                <div
-                  className="flex items-center justify-center w-8 h-8 rounded-full font-mono text-xs font-black transition-all"
-                  style={{
-                    background:
-                      i <= currentStepIndex ? "#FEE101" : "rgba(255,255,255,0.1)",
-                    color: i <= currentStepIndex ? "#011a0d" : "rgba(255,255,255,0.4)",
-                    border: `1.5px solid ${i <= currentStepIndex ? "#E8187A" : "transparent"}`,
-                    boxShadow: i <= currentStepIndex ? "0 0 12px rgba(254,225,1,0.4)" : "none",
-                  }}
-                >
-                  {i < currentStepIndex ? "✓" : i + 1}
-                </div>
-                {i < stepsForFormat.length - 1 && (
-                  <div
-                    className="flex-1 h-0.5 mx-2 transition-all"
+            {stepsForFormat.map((s, i) => {
+              const isCompleted = i < currentStepIndex;
+              const isCurrent = i === currentStepIndex;
+              return (
+                <div key={s} className="flex items-center flex-1">
+                  <button
+                    type="button"
+                    onClick={() => handleStepClick(s)}
+                    disabled={!isCompleted}
+                    title={isCompleted ? `Go back to: ${STEP_LABELS[s]}` : undefined}
+                    className="flex items-center justify-center w-8 h-8 rounded-full font-mono text-xs font-black transition-all"
                     style={{
                       background:
-                        i < currentStepIndex
-                          ? "#FEE101"
-                          : "rgba(255,255,255,0.15)",
+                        i <= currentStepIndex ? "#FEE101" : "rgba(255,255,255,0.1)",
+                      color: i <= currentStepIndex ? "#011a0d" : "rgba(255,255,255,0.4)",
+                      border: `1.5px solid ${i <= currentStepIndex ? "#E8187A" : "transparent"}`,
+                      boxShadow: isCurrent
+                        ? "0 0 18px rgba(254,225,1,0.6)"
+                        : isCompleted
+                        ? "0 0 10px rgba(254,225,1,0.3)"
+                        : "none",
+                      cursor: isCompleted ? "pointer" : "default",
+                      transform: isCompleted ? "scale(1)" : "scale(1)",
                     }}
-                  />
-                )}
-              </div>
-            ))}
+                    onMouseEnter={(e) => {
+                      if (isCompleted) (e.currentTarget as HTMLElement).style.transform = "scale(1.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+                    }}
+                  >
+                    {isCompleted ? "✓" : i + 1}
+                  </button>
+                  {i < stepsForFormat.length - 1 && (
+                    <div
+                      className="flex-1 h-0.5 mx-2 transition-all"
+                      style={{
+                        background:
+                          i < currentStepIndex
+                            ? "#FEE101"
+                            : "rgba(255,255,255,0.15)",
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
           <div className="flex items-center justify-between mt-1">
             <span
@@ -470,23 +502,23 @@ export default function CreatePage({
             <>
               {/* Offscreen Canvas Container (rendered in DOM tree for high-res 2D drawing) */}
               <div style={{ position: "fixed", left: -9999, top: -9999, opacity: 0, pointerEvents: "none" }}>
-                {format === "profile" && croppedPhoto && (
+                {format === "profile" && (
                   <ProfileFrameCanvas
                     ref={canvasRef}
-                    photoDataUrl={croppedPhoto}
+                    photoDataUrl={croppedPhoto || ""}
                     circular={true}
                   />
                 )}
-                {format === "builder-id" && croppedPhoto && (
+                {format === "builder-id" && (
                   <BuilderIDCanvas
                     ref={canvasRef}
                     data={{
-                      name: formData.name,
-                      role: formData.role,
-                      builderTitle: formData.builderTitle,
-                      handle: formData.handle,
-                      seat: formData.seat,
-                      photoDataUrl: croppedPhoto,
+                      name: formData.name || "BUILDER",
+                      role: formData.role || "FULL-STACK",
+                      builderTitle: formData.builderTitle || "CHAD BUILDER",
+                      handle: formData.handle || "",
+                      seat: formData.seat || "01A",
+                      photoDataUrl: croppedPhoto || "",
                     }}
                   />
                 )}
