@@ -78,15 +78,18 @@ export default function StepUpload({
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full select-none">
       {/* Drop zone */}
       <div
-        className={`relative rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer ${
+        className={`relative rounded-2xl border-2 border-dashed transition-all duration-200 cursor-pointer overflow-hidden ${
           isDragging
-            ? "border-yellow-brand bg-yellow-brand/10"
-            : "border-green-light/50 hover:border-yellow-brand/60 hover:bg-green-mid/20"
+            ? "border-yellow-300 bg-yellow-300/10 shadow-[0_0_30px_rgba(254,225,1,0.3)]"
+            : "border-yellow-300/40 hover:border-yellow-300 bg-emerald-950/60 hover:bg-emerald-950/80 shadow-lg"
         }`}
-        style={{ minHeight: 220 }}
+        style={{
+          minHeight: 250,
+          backdropFilter: "blur(10px)",
+        }}
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -96,50 +99,57 @@ export default function StepUpload({
         onDrop={onDrop}
       >
         {isProcessing ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-            {/* Skeleton shimmer */}
-            <div className="skeleton w-16 h-16 rounded-full" />
-            <div className="skeleton w-40 h-4 rounded" />
-            <p className="text-cream/60 text-sm">Processing photo…</p>
-          </div>
-        ) : existingPreview ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={existingPreview}
-              alt="Preview"
-              className="w-full h-full object-cover rounded-2xl opacity-75"
-            />
-            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-green-deep/60">
-              <div className="text-center">
-                <div className="text-4xl mb-2">🔄</div>
-                <p className="text-cream font-semibold">Click to replace</p>
-              </div>
-            </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
+            <div className="w-12 h-12 rounded-full border-3 border-yellow-300 border-t-pink-500 animate-spin" />
+            <p className="font-mono font-bold text-sm text-yellow-300 uppercase tracking-wider">
+              PROCESSING PHOTO...
+            </p>
+            <p className="font-mono text-xs text-white/60">
+              Applying EXIF auto-rotation & format conversion
+            </p>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-4 p-10">
+          <div className="flex flex-col items-center justify-center p-8 text-center gap-4">
+            {/* Palm/Upload Icon */}
             <div
-              className="w-20 h-20 rounded-full flex items-center justify-center text-4xl"
-              style={{ background: "rgba(26,139,78,0.3)" }}
-            >
-              📤
-            </div>
-            <div className="text-center">
-              <p className="text-cream font-semibold text-lg">{label}</p>
-              <p className="text-cream/50 text-sm mt-1">
-                Drag & drop or tap · JPG, PNG, WebP, HEIC
-              </p>
-            </div>
-            <div
-              className="px-6 py-2.5 rounded-full font-semibold text-sm"
+              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-lg"
               style={{
-                background: "rgba(245,230,66,0.15)",
-                color: "#F5E642",
-                border: "1px solid rgba(245,230,66,0.3)",
+                background: "rgba(232,24,122,0.15)",
+                border: "1.5px solid #E8187A",
+                boxShadow: "0 0 20px rgba(232,24,122,0.3)",
               }}
             >
-              Choose File
+              🌴
+            </div>
+
+            <div>
+              <h3 className="font-mono font-black text-lg text-yellow-300 uppercase tracking-wider mb-1">
+                {label}
+              </h3>
+              <p className="font-mono text-xs text-white/60">
+                Drag & drop your photo here or click to browse
+              </p>
+            </div>
+
+            {/* Choose File Button */}
+            <button
+              type="button"
+              className="font-mono font-black text-xs uppercase tracking-[0.18em] py-3 px-6 rounded-lg transition-all"
+              style={{
+                background: "#FEE101",
+                color: "#011a0d",
+                border: "2px solid #E8187A",
+                boxShadow: "0 4px 15px rgba(254,225,1,0.3)",
+              }}
+            >
+              + CHOOSE PHOTO FILE
+            </button>
+
+            {/* Supported Formats Pill */}
+            <div className="flex items-center gap-2 mt-1">
+              <span className="font-mono text-[10px] text-white/40 tracking-widest uppercase">
+                SUPPORTS: JPG · PNG · WEBP · HEIC
+              </span>
             </div>
           </div>
         )}
@@ -147,18 +157,22 @@ export default function StepUpload({
         <input
           ref={inputRef}
           type="file"
-          accept=".jpg,.jpeg,.png,.webp,.heic,.heif,image/*"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
         />
       </div>
 
       {error && (
-        <p className="mt-3 text-sm rounded-lg px-4 py-2.5"
-          style={{ background: "rgba(232,24,122,0.15)", color: "#E8187A", border: "1px solid rgba(232,24,122,0.3)" }}
+        <div
+          className="mt-3 p-3 rounded-lg font-mono text-xs text-pink-300 text-center"
+          style={{
+            background: "rgba(232,24,122,0.2)",
+            border: "1px solid #E8187A",
+          }}
         >
-          ⚠️ {error}
-        </p>
+          {error}
+        </div>
       )}
     </div>
   );

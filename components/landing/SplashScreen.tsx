@@ -9,8 +9,8 @@ export default function SplashScreen() {
 
   useEffect(() => {
     // Display splash for ~1.5s hold time, then tear open over 0.5s (2.0s total max)
-    const t1 = setTimeout(() => setPhase("tear"), 1500);
-    const t2 = setTimeout(() => setPhase("gone"), 2000);
+    const t1 = setTimeout(() => setPhase("tear"), 1000);
+    const t2 = setTimeout(() => setPhase("gone"), 1500);
 
     return () => [t1, t2].forEach(clearTimeout);
   }, []);

@@ -57,11 +57,11 @@ export default function StepForm({ initialData, onSubmit, format }: StepFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5 select-none">
       {/* Name */}
       <div>
-        <label className="block text-pink-brand font-semibold text-xs uppercase tracking-widest mb-2">
-          Full Name *
+        <label className="block text-yellow-300 font-mono font-bold text-xs uppercase tracking-[0.2em] mb-2">
+          ✦ Full Name *
         </label>
         <input
           type="text"
@@ -69,19 +69,20 @@ export default function StepForm({ initialData, onSubmit, format }: StepFormProp
           onChange={(e) => { setName(e.target.value); setError(""); }}
           placeholder="e.g. Rahul Mehta"
           maxLength={32}
-          className="w-full px-4 py-3 rounded-xl text-cream placeholder-cream/30 outline-none focus:ring-2"
+          className="w-full px-4 py-3 rounded-xl text-white font-mono text-sm placeholder-white/30 outline-none transition-all"
           style={{
-            background: "rgba(11,104,57,0.3)",
-            border: "1px solid rgba(245,230,66,0.2)",
+            background: "rgba(1,21,12,0.85)",
+            border: "1.5px solid rgba(254,225,1,0.3)",
+            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.4)",
           }}
         />
-        {error && <p className="mt-1 text-sm" style={{ color: "#E8187A" }}>{error}</p>}
+        {error && <p className="mt-1 font-mono text-xs text-pink-400">{error}</p>}
       </div>
 
       {/* Role */}
       <div>
-        <label className="block text-pink-brand font-semibold text-xs uppercase tracking-widest mb-2">
-          Stack / Role
+        <label className="block text-yellow-300 font-mono font-bold text-xs uppercase tracking-[0.2em] mb-2">
+          ✦ Stack / Role
         </label>
         <div className="grid grid-cols-4 gap-2">
           {ROLES.map((r) => (
@@ -89,11 +90,12 @@ export default function StepForm({ initialData, onSubmit, format }: StepFormProp
               key={r}
               type="button"
               onClick={() => handleRoleChange(r)}
-              className="px-2 py-2 rounded-lg text-xs font-semibold transition-all"
+              className="px-2 py-2.5 rounded-lg text-xs font-mono font-bold uppercase transition-all"
               style={{
-                background: role === r ? "#F5E642" : "rgba(11,104,57,0.4)",
-                color: role === r ? "#063725" : "#F5F0E8",
-                border: `1px solid ${role === r ? "#F5E642" : "rgba(245,230,66,0.15)"}`,
+                background: role === r ? "#FEE101" : "rgba(1,21,12,0.7)",
+                color: role === r ? "#011a0d" : "rgba(255,255,255,0.7)",
+                border: `1.5px solid ${role === r ? "#E8187A" : "rgba(255,255,255,0.15)"}`,
+                boxShadow: role === r ? "0 4px 12px rgba(254,225,1,0.25)" : "none",
               }}
             >
               {r}
@@ -105,49 +107,55 @@ export default function StepForm({ initialData, onSubmit, format }: StepFormProp
       {/* Builder Title */}
       {format === "builder-id" && (
         <div>
-          <label className="block text-pink-brand font-semibold text-xs uppercase tracking-widest mb-2">
-            Builder Class (auto-generated)
+          <label className="block text-yellow-300 font-mono font-bold text-xs uppercase tracking-[0.2em] mb-2">
+            ✦ Builder Class (auto-generated)
           </label>
-          <div className="flex gap-2">
+          <div className="flex gap-2.5">
             <div
-              className="flex-1 px-4 py-3 rounded-xl font-bold"
+              className="flex-1 px-4 py-3 rounded-xl font-mono font-bold text-xs text-yellow-300 flex items-center justify-between"
               style={{
-                background: "rgba(245,230,66,0.1)",
-                border: "1px solid rgba(245,230,66,0.3)",
-                color: "#F5E642",
+                background: "rgba(1,21,12,0.9)",
+                border: "1.5px solid rgba(254,225,1,0.3)",
               }}
             >
-              {builderTitle}
+              <span>{builderTitle}</span>
+              <span className="text-pink-400 text-[10px] tracking-widest uppercase">CLASS {seat}</span>
             </div>
             <button
               type="button"
               onClick={reroll}
-              className="px-4 py-3 rounded-xl font-bold transition-all btn-press"
+              className="px-4 py-3 rounded-xl font-bold transition-all text-base"
               style={{
                 background: "rgba(232,24,122,0.2)",
                 color: "#E8187A",
-                border: "1px solid rgba(232,24,122,0.3)",
+                border: "1.5px solid #E8187A",
+                boxShadow: "0 4px 12px rgba(232,24,122,0.3)",
               }}
               title="Re-roll builder title"
             >
               🎲
             </button>
           </div>
-          <p className="text-cream/40 text-xs mt-1">
-            Hit 🎲 to re-roll — each title is unique
+          <p className="text-white/40 font-mono text-[11px] mt-1.5">
+            Hit 🎲 to re-roll — each title is uniquely generated
           </p>
         </div>
       )}
 
       {/* X Handle */}
       <div>
-        <label className="block text-pink-brand font-semibold text-xs uppercase tracking-widest mb-2">
-          X Handle (optional)
+        <label className="block text-yellow-300 font-mono font-bold text-xs uppercase tracking-[0.2em] mb-2">
+          ✦ X / Twitter Handle (optional)
         </label>
         <div className="flex items-center gap-0">
           <span
-            className="px-3 py-3 rounded-l-xl font-bold"
-            style={{ background: "rgba(232,24,122,0.2)", color: "#E8187A", border: "1px solid rgba(232,24,122,0.3)" }}
+            className="px-4 py-3 rounded-l-xl font-mono font-bold text-xs"
+            style={{
+              background: "rgba(232,24,122,0.2)",
+              color: "#E8187A",
+              border: "1.5px solid #E8187A",
+              borderRight: "none",
+            }}
           >
             @
           </span>
@@ -157,11 +165,10 @@ export default function StepForm({ initialData, onSubmit, format }: StepFormProp
             onChange={(e) => setHandle(e.target.value.replace(/^@/, ""))}
             placeholder="yourhandle"
             maxLength={20}
-            className="flex-1 px-4 py-3 rounded-r-xl text-cream placeholder-cream/30 outline-none"
+            className="flex-1 px-4 py-3 rounded-r-xl text-white font-mono text-sm placeholder-white/30 outline-none"
             style={{
-              background: "rgba(11,104,57,0.3)",
-              border: "1px solid rgba(245,230,66,0.2)",
-              borderLeft: "none",
+              background: "rgba(1,21,12,0.85)",
+              border: "1.5px solid rgba(254,225,1,0.3)",
             }}
           />
         </div>
@@ -169,10 +176,16 @@ export default function StepForm({ initialData, onSubmit, format }: StepFormProp
 
       <button
         type="submit"
-        className="w-full py-4 rounded-xl font-bold text-lg text-green-deep btn-press"
-        style={{ background: "#F5E642" }}
+        className="w-full py-4 rounded-xl font-mono font-black text-sm text-[#011a0d] uppercase tracking-[0.2em] mt-2 transition-all"
+        style={{
+          background: "#FEE101",
+          border: "2px solid #E8187A",
+          outline: "3px dotted #E8187A",
+          outlineOffset: "3px",
+          boxShadow: "0 8px 25px rgba(254,225,1,0.35)",
+        }}
       >
-        Generate My {format === "builder-id" ? "Builder ID" : "Team Frame"} →
+        Generate My {format === "builder-id" ? "Builder ID Card" : "Team Frame"} →
       </button>
     </form>
   );

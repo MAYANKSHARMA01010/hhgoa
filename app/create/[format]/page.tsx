@@ -30,13 +30,11 @@ const TeamFrameCanvas = dynamic(
 );
 
 const STEP_LABELS: Record<Step, string> = {
-  upload: "Upload",
-  crop: "Crop",
-  form: "Details",
-  render: "Result",
+  upload: "Upload Photo",
+  crop: "Crop Photo",
+  form: "Builder Details",
+  render: "Export Frame",
 };
-
-const STEPS: Step[] = ["upload", "crop", "form", "render"];
 
 export default function CreatePage({
   params,
@@ -185,60 +183,111 @@ export default function CreatePage({
   };
 
   return (
-    <main className="min-h-screen flex flex-col">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-green-light/20">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-black" style={{ color: "#F5E642" }}>
-            ← HH GOA
-          </span>
-        </Link>
-        <span
-          className="text-xs font-bold px-3 py-1 rounded-full"
-          style={{ background: "rgba(232,24,122,0.15)", color: "#E8187A", border: "1px solid rgba(232,24,122,0.2)" }}
+    <main
+      className="min-h-screen flex flex-col relative select-none overflow-x-hidden"
+      style={{
+        background: "radial-gradient(circle at 50% 30%, #035227 0%, #02381b 55%, #01210f 100%)",
+      }}
+    >
+      {/* Sunburst background rays */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-15"
+        style={{
+          backgroundImage: `repeating-conic-gradient(from 0deg at 50% 50%, rgba(254,225,1,0.2) 0deg 10deg, transparent 10deg 20deg)`,
+        }}
+      />
+
+      {/* Palm silhouettes */}
+      <div className="absolute left-0 top-0 bottom-0 pointer-events-none opacity-15 w-24 sm:w-44 flex items-center z-0">
+        <svg viewBox="0 0 100 200" fill="#FEE101" className="w-full h-auto">
+          <path d="M10 200 Q 30 140 0 80 Q 20 60 50 70 Q 30 40 10 50 Q 50 20 80 40 Q 60 70 70 90 Q 40 120 10 200 Z" />
+        </svg>
+      </div>
+      <div className="absolute right-0 top-0 bottom-0 pointer-events-none opacity-15 w-24 sm:w-44 flex items-center transform scale-x-[-1] z-0">
+        <svg viewBox="0 0 100 200" fill="#FEE101" className="w-full h-auto">
+          <path d="M10 200 Q 30 140 0 80 Q 20 60 50 70 Q 30 40 10 50 Q 50 20 80 40 Q 60 70 70 90 Q 40 120 10 200 Z" />
+        </svg>
+      </div>
+
+      {/* Navigation Header */}
+      <nav
+        className="relative z-20 flex items-center justify-between px-6 py-4"
+        style={{
+          borderBottom: "1px solid rgba(254,225,1,0.12)",
+          background: "rgba(1,21,12,0.85)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-mono font-bold text-xs sm:text-sm text-yellow-300 hover:text-pink-400 transition-colors uppercase tracking-wider text-decoration-none"
         >
-          #FrameInGoa
-        </span>
+          <span>← HOME STUDIO</span>
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <span className="font-mono font-black text-xs text-yellow-300 tracking-[0.25em] uppercase hidden sm:inline-block">
+            OBOW STUDIO
+          </span>
+          <span
+            className="text-[11px] font-mono font-bold px-3 py-1 rounded-full text-pink-400 tracking-wider uppercase"
+            style={{
+              background: "rgba(232,24,122,0.15)",
+              border: "1.5px solid #E8187A",
+              boxShadow: "0 0 12px rgba(232,24,122,0.3)",
+            }}
+          >
+            #FRAMEINGOA
+          </span>
+        </div>
       </nav>
 
-      <div className="flex-1 max-w-lg mx-auto w-full px-5 py-8 flex flex-col gap-8">
-        {/* Format selector (shown on upload step) */}
+      {/* Studio Workspace Container */}
+      <div className="relative z-10 flex-1 max-w-xl mx-auto w-full px-4 sm:px-6 py-8 flex flex-col gap-7">
+        {/* Format Selector (shown on upload step) */}
         {step === "upload" && teamMemberIndex === 0 && (
-          <>
-            <div>
-              <h1 className="text-2xl font-black text-cream mb-2">
+          <div className="flex flex-col gap-4">
+            <div className="text-center sm:text-left">
+              <span className="inline-block px-3 py-0.5 rounded-full font-mono font-bold text-[11px] text-pink-400 tracking-[0.25em] uppercase mb-1" style={{ background: "rgba(232,24,122,0.15)", border: "1px solid rgba(232,24,122,0.3)" }}>
+                ✦ STEP 1: FORMAT ✦
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-mono font-black text-yellow-300 uppercase tracking-wider leading-tight">
                 Choose Your Format
               </h1>
-              <p className="text-cream/50 text-sm">
-                Pick the style you want to generate
+              <p className="text-white/60 font-mono text-xs mt-1">
+                Select the badge style to customize & export
               </p>
             </div>
+
             <FormatSelector selected={format} onChange={handleFormatChange} />
 
             {/* Team size picker */}
             {format === "team" && (
-              <div>
-                <label className="block text-pink-brand font-semibold text-xs uppercase tracking-widest mb-3">
-                  Team Size
+              <div className="p-4 rounded-xl" style={{ background: "rgba(1,26,13,0.6)", border: "1px solid rgba(254,225,1,0.2)" }}>
+                <label className="block text-yellow-300 font-mono font-bold text-xs uppercase tracking-widest mb-3">
+                  ✦ Select Team Size
                 </label>
-                <div className="flex gap-2">
-                  {[2, 3, 4].map((n) => (
+                <div className="flex gap-2.5">
+                  {[2, 3].map((n) => (
                     <button
                       key={n}
+                      type="button"
                       onClick={() => setTeamSize(n)}
-                      className="flex-1 py-2.5 rounded-xl font-bold transition-all"
+                      className="flex-1 py-2.5 rounded-lg font-mono font-bold text-xs uppercase tracking-wider transition-all"
                       style={{
-                        background: teamSize === n ? "#F5E642" : "rgba(11,104,57,0.3)",
-                        color: teamSize === n ? "#063725" : "#F5F0E8",
-                        border: `1px solid ${teamSize === n ? "#F5E642" : "rgba(245,230,66,0.15)"}`,
+                        background: teamSize === n ? "#FEE101" : "rgba(255,255,255,0.08)",
+                        color: teamSize === n ? "#011a0d" : "#ffffff",
+                        border: `1.5px solid ${teamSize === n ? "#E8187A" : "rgba(255,255,255,0.2)"}`,
+                        boxShadow: teamSize === n ? "0 4px 15px rgba(254,225,1,0.3)" : "none",
                       }}
                     >
-                      {n} people
+                      {n} Members
                     </button>
                   ))}
                 </div>
+
                 {/* Team member names pre-fill */}
-                <div className="mt-3 flex flex-col gap-2">
+                <div className="mt-4 flex flex-col gap-2.5">
                   {Array.from({ length: teamSize }, (_, i) => (
                     <div key={i} className="flex gap-2">
                       <input
@@ -249,11 +298,11 @@ export default function CreatePage({
                           updated[i] = e.target.value;
                           setTeamMemberNames(updated);
                         }}
-                        placeholder={`Member ${i + 1} name${i === 0 ? " (you)" : ""}`}
-                        className="flex-1 px-3 py-2 rounded-lg text-cream text-sm placeholder-cream/30 outline-none"
+                        placeholder={`Member ${i + 1} Name${i === 0 ? " (You)" : ""}`}
+                        className="flex-1 px-3 py-2 rounded-lg text-white font-mono text-xs placeholder-white/40 outline-none"
                         style={{
-                          background: "rgba(11,104,57,0.3)",
-                          border: "1px solid rgba(245,230,66,0.15)",
+                          background: "rgba(1,21,12,0.8)",
+                          border: "1px solid rgba(254,225,1,0.2)",
                         }}
                       />
                       <select
@@ -263,8 +312,11 @@ export default function CreatePage({
                           updated[i] = e.target.value;
                           setTeamMemberRoles(updated);
                         }}
-                        className="px-2 py-2 rounded-lg text-cream text-xs outline-none"
-                        style={{ background: "rgba(11,104,57,0.5)", border: "1px solid rgba(245,230,66,0.15)" }}
+                        className="px-2 py-2 rounded-lg text-yellow-300 font-mono text-xs outline-none"
+                        style={{
+                          background: "rgba(1,21,12,0.9)",
+                          border: "1px solid rgba(254,225,1,0.2)",
+                        }}
                       >
                         {["Frontend","Backend","Full-Stack","Product","Design","AI-ML","Other"].map(r => (
                           <option key={r} value={r}>{r}</option>
@@ -275,136 +327,151 @@ export default function CreatePage({
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
 
-        {/* Progress indicator */}
-        <div>
+        {/* Step Progress Stepper */}
+        <div
+          className="p-4 rounded-xl"
+          style={{
+            background: "rgba(1,21,12,0.75)",
+            border: "1px solid rgba(254,225,1,0.18)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
           <div className="flex items-center justify-between mb-2">
             {stepsForFormat.map((s, i) => (
               <div key={s} className="flex items-center flex-1">
                 <div
-                  className="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all"
+                  className="flex items-center justify-center w-8 h-8 rounded-full font-mono text-xs font-black transition-all"
                   style={{
                     background:
-                      i <= currentStepIndex ? "#F5E642" : "rgba(11,104,57,0.4)",
-                    color: i <= currentStepIndex ? "#063725" : "#F5F0E8",
+                      i <= currentStepIndex ? "#FEE101" : "rgba(255,255,255,0.1)",
+                    color: i <= currentStepIndex ? "#011a0d" : "rgba(255,255,255,0.4)",
+                    border: `1.5px solid ${i <= currentStepIndex ? "#E8187A" : "transparent"}`,
+                    boxShadow: i <= currentStepIndex ? "0 0 12px rgba(254,225,1,0.4)" : "none",
                   }}
                 >
                   {i < currentStepIndex ? "✓" : i + 1}
                 </div>
                 {i < stepsForFormat.length - 1 && (
                   <div
-                    className="flex-1 h-0.5 mx-1 transition-all"
+                    className="flex-1 h-0.5 mx-2 transition-all"
                     style={{
                       background:
                         i < currentStepIndex
-                          ? "#F5E642"
-                          : "rgba(11,104,57,0.4)",
+                          ? "#FEE101"
+                          : "rgba(255,255,255,0.15)",
                     }}
                   />
                 )}
               </div>
             ))}
           </div>
-          <p
-            className="text-xs font-bold uppercase tracking-widest"
-            style={{ color: "#E8187A" }}
-          >
-            {getStepLabel()}
-          </p>
+          <div className="flex items-center justify-between mt-1">
+            <span
+              className="font-mono text-xs font-black uppercase tracking-wider text-pink-400"
+            >
+              ✦ {getStepLabel()} ✦
+            </span>
+            <span className="font-mono text-[10px] text-yellow-300/50 uppercase tracking-widest">
+              STEP {currentStepIndex + 1} OF {stepsForFormat.length}
+            </span>
+          </div>
         </div>
 
-        {/* Step content */}
-        {step === "upload" && (
-          <StepUpload
-            onPhotoReady={handlePhotoReady}
-            label={
-              format === "team"
-                ? `Upload photo for Member ${teamMemberIndex + 1}${teamMemberIndex === 0 ? " (you)" : ""}`
-                : "Upload Your Photo"
-            }
-            existingPreview={rawPhoto}
-          />
-        )}
-
-        {step === "crop" && rawPhoto && (
-          <StepCrop
-            photoDataUrl={rawPhoto}
-            format={format}
-            onCropped={handleCropped}
-            label={
-              format === "team"
-                ? `Crop Member ${teamMemberIndex + 1}'s photo`
-                : "Adjust your photo"
-            }
-          />
-        )}
-
-        {step === "form" && (
-          <>
-            {format === "team" ? (
-              <StepForm
-                format="team"
-                initialData={{
-                  name: teamMemberNames[0] || "",
-                  role: (teamMemberRoles[0] as FormData["role"]) || "Full-Stack",
-                  builderTitle: generateBuilderTitle("Full-Stack"),
-                  seat: generateSeatNumber(),
-                }}
-                onSubmit={handleFormSubmit}
-              />
-            ) : (
-              <StepForm
-                format="builder-id"
-                initialData={formData}
-                onSubmit={handleFormSubmit}
-              />
-            )}
-          </>
-        )}
-
-        {step === "render" && (
-          <>
-            {/* Canvas (hidden, used for rendering) */}
-            <div className="hidden">
-              {format === "profile" && croppedPhoto && (
-                <ProfileFrameCanvas
-                  ref={canvasRef}
-                  photoDataUrl={croppedPhoto}
-                  circular={true}
-                />
-              )}
-              {format === "builder-id" && croppedPhoto && (
-                <BuilderIDCanvas
-                  ref={canvasRef}
-                  data={{
-                    name: formData.name,
-                    role: formData.role,
-                    builderTitle: formData.builderTitle,
-                    handle: formData.handle,
-                    seat: formData.seat,
-                    photoDataUrl: croppedPhoto,
-                  }}
-                />
-              )}
-              {format === "team" && teamMembers.length > 0 && (
-                <TeamFrameCanvas
-                  ref={canvasRef}
-                  members={teamMembers}
-                />
-              )}
-            </div>
-
-            <StepResult
-              canvasRef={canvasRef}
-              format={format}
-              name={formData.name || teamMemberNames[0] || "Builder"}
-              builderTitle={formData.builderTitle}
-              onReset={handleReset}
+        {/* Step Content Area */}
+        <div className="relative">
+          {step === "upload" && (
+            <StepUpload
+              onPhotoReady={handlePhotoReady}
+              label={
+                format === "team"
+                  ? `Upload photo for Member ${teamMemberIndex + 1}${teamMemberIndex === 0 ? " (You)" : ""}`
+                  : "Upload Your Photo"
+              }
+              existingPreview={rawPhoto}
             />
-          </>
-        )}
+          )}
+
+          {step === "crop" && rawPhoto && (
+            <StepCrop
+              photoDataUrl={rawPhoto}
+              format={format}
+              onCropped={handleCropped}
+              label={
+                format === "team"
+                  ? `Crop Member ${teamMemberIndex + 1}'s Photo`
+                  : "Crop & Position Photo"
+              }
+            />
+          )}
+
+          {step === "form" && (
+            <>
+              {format === "team" ? (
+                <StepForm
+                  format="team"
+                  initialData={{
+                    name: teamMemberNames[0] || "",
+                    role: (teamMemberRoles[0] as FormData["role"]) || "Full-Stack",
+                    builderTitle: generateBuilderTitle("Full-Stack"),
+                    seat: generateSeatNumber(),
+                  }}
+                  onSubmit={handleFormSubmit}
+                />
+              ) : (
+                <StepForm
+                  format="builder-id"
+                  initialData={formData}
+                  onSubmit={handleFormSubmit}
+                />
+              )}
+            </>
+          )}
+
+          {step === "render" && (
+            <>
+              {/* Canvas (hidden, used for rendering) */}
+              <div className="hidden">
+                {format === "profile" && croppedPhoto && (
+                  <ProfileFrameCanvas
+                    ref={canvasRef}
+                    photoDataUrl={croppedPhoto}
+                    circular={true}
+                  />
+                )}
+                {format === "builder-id" && croppedPhoto && (
+                  <BuilderIDCanvas
+                    ref={canvasRef}
+                    data={{
+                      name: formData.name,
+                      role: formData.role,
+                      builderTitle: formData.builderTitle,
+                      handle: formData.handle,
+                      seat: formData.seat,
+                      photoDataUrl: croppedPhoto,
+                    }}
+                  />
+                )}
+                {format === "team" && teamMembers.length > 0 && (
+                  <TeamFrameCanvas
+                    ref={canvasRef}
+                    members={teamMembers}
+                  />
+                )}
+              </div>
+
+              <StepResult
+                canvasRef={canvasRef}
+                format={format}
+                name={formData.name || teamMemberNames[0] || "Builder"}
+                builderTitle={formData.builderTitle}
+                onReset={handleReset}
+              />
+            </>
+          )}
+        </div>
       </div>
     </main>
   );

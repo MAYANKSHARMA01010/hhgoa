@@ -4,8 +4,7 @@ import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import type { Point, Area } from "react-easy-crop";
 
-// Dynamic import for react-easy-crop — use `any` to avoid strict required-props mismatch
-// (library defaultProps cover all "required" fields that have defaults)
+// Dynamic import for react-easy-crop
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Cropper = dynamic(() => import("react-easy-crop"), {
   ssr: false,
@@ -109,13 +108,18 @@ export default function StepCrop({
   };
 
   return (
-    <div className="w-full flex flex-col gap-4">
-      <p className="text-cream/70 text-sm text-center">{label}</p>
+    <div className="w-full flex flex-col gap-4 select-none">
+      <div className="text-center">
+        <span className="inline-block px-3 py-0.5 rounded-full font-mono font-bold text-[11px] text-pink-400 tracking-[0.25em] uppercase mb-1" style={{ background: "rgba(232,24,122,0.15)", border: "1px solid rgba(232,24,122,0.3)" }}>
+          ✦ STEP 2: CROP & POSITION ✦
+        </span>
+        <p className="font-mono text-xs text-white/70">{label}</p>
+      </div>
 
       {/* Cropper container */}
       <div
-        className="relative rounded-2xl overflow-hidden"
-        style={{ height: 320, background: "#063725" }}
+        className="relative rounded-2xl overflow-hidden shadow-2xl"
+        style={{ height: 320, background: "#011a0d", border: "2px solid rgba(254,225,1,0.3)" }}
       >
         <Cropper
           image={photoDataUrl}
@@ -139,16 +143,16 @@ export default function StepCrop({
           style={{
             containerStyle: { borderRadius: 16 },
             cropAreaStyle: {
-              border: "2px solid #F5E642",
-              boxShadow: "0 0 0 9999px rgba(6,55,37,0.7)",
+              border: "2.5px solid #FEE101",
+              boxShadow: "0 0 0 9999px rgba(1,21,12,0.75), 0 0 15px rgba(254,225,1,0.4)",
             },
           }}
         />
       </div>
 
       {/* Zoom slider */}
-      <div className="flex items-center gap-3">
-        <span className="text-cream/50 text-xs">🔍</span>
+      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(1,21,12,0.8)", border: "1px solid rgba(254,225,1,0.2)" }}>
+        <span className="text-yellow-300 font-mono text-xs font-bold">🔍 ZOOM</span>
         <input
           type="range"
           min={1}
@@ -156,21 +160,28 @@ export default function StepCrop({
           step={0.01}
           value={zoom}
           onChange={(e) => setZoom(Number(e.target.value))}
-          className="flex-1 accent-yellow-brand"
+          className="flex-1 accent-yellow-300 cursor-pointer"
         />
-        <span className="text-cream/50 text-xs">+</span>
+        <span className="text-yellow-300 font-mono text-xs font-bold">{(zoom * 100).toFixed(0)}%</span>
       </div>
 
-      <p className="text-cream/40 text-xs text-center">
-        Pinch or scroll to zoom · Drag to reposition
+      <p className="font-mono text-[11px] text-white/40 text-center uppercase tracking-widest">
+        Drag to position · Scroll or pinch to zoom
       </p>
 
       <button
+        type="button"
         onClick={handleConfirm}
-        className="w-full py-3.5 rounded-xl font-bold text-green-deep btn-press"
-        style={{ background: "#F5E642" }}
+        className="w-full py-4 rounded-xl font-mono font-black text-sm text-[#011a0d] uppercase tracking-[0.2em] transition-all"
+        style={{
+          background: "#FEE101",
+          border: "2px solid #E8187A",
+          outline: "3px dotted #E8187A",
+          outlineOffset: "3px",
+          boxShadow: "0 8px 25px rgba(254,225,1,0.35)",
+        }}
       >
-        Crop & Continue →
+        + CONFIRM CROP & CONTINUE →
       </button>
     </div>
   );
