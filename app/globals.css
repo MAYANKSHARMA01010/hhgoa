@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  --color-green-deep: #063725;
+  --color-green-mid: #0b6839;
+  --color-green-light: #1a8b4e;
+  --color-yellow-brand: #f5e642;
+  --color-pink-brand: #e8187a;
+  --color-cream: #f5f0e8;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), "Space Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #063725;
+    color: #f5f0e8;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #063725;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #0b6839;
+    border-radius: 3px;
+  }
+}
+
+/* Skeleton shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #0b6839 25%,
+    #1a8b4e 50%,
+    #0b6839 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* Perforated border for boarding pass */
+.perforated {
+  border: 2px dashed rgba(245, 230, 66, 0.4);
+}
+
+/* Noise texture overlay */
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Glassmorphism card */
+.glass {
+  background: rgba(11, 104, 57, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 230, 66, 0.15);
+}
+
+/* Glow effects */
+.glow-yellow {
+  box-shadow: 0 0 30px rgba(245, 230, 66, 0.2);
+}
+
+.glow-pink {
+  box-shadow: 0 0 30px rgba(232, 24, 122, 0.3);
+}
+
+/* Sunrise gradient */
+.sunrise-gradient {
+  background: linear-gradient(
+    135deg,
+    #063725 0%,
+    #0b6839 40%,
+    #1a5c3a 70%,
+    #e8187a22 100%
+  );
+}
+
+/* Button press */
+.btn-press {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Drop zone */
+.drop-active {
+  border-color: #f5e642 !important;
+  background: rgba(245, 230, 66, 0.05) !important;
+}
+
+/* Format card hover */
+.format-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.format-card:hover {
+  transform: translateY(-2px);
+}
