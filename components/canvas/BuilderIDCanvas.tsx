@@ -5,6 +5,7 @@ import {
   COLORS,
   drawBarcode,
   drawPalmOrnament,
+  drawRoundedRect,
   dataUrlToImage,
 } from "@/lib/canvasRender";
 import type { CanvasHandle } from "@/lib/types";
@@ -43,12 +44,28 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
     }));
 
     useEffect(() => {
-      if (!data.photoDataUrl) return;
-      drawCard();
+      let isMounted = true;
+      async function prepareAndDraw() {
+        let loadedImg: HTMLImageElement | null = null;
+        if (data.photoDataUrl) {
+          try {
+            loadedImg = await dataUrlToImage(data.photoDataUrl);
+          } catch (err) {
+            console.warn("BuilderIDCanvas photo preload warning:", err);
+          }
+        }
+        if (isMounted && canvasRef.current) {
+          drawCardSync(loadedImg);
+        }
+      }
+      prepareAndDraw();
+      return () => {
+        isMounted = false;
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data]);
+    }, [data.photoDataUrl, data.name, data.role, data.builderTitle, data.handle, data.seat]);
 
-    async function drawCard() {
+    function drawCardSync(img: HTMLImageElement | null) {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext("2d")!;
@@ -97,17 +114,25 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
       ctx.font = `900 ${68 * sc}px 'Space Grotesk', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.letterSpacing = `${4 * sc}px`;
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = `${4 * sc}px`;
+      }
       ctx.fillText("HACKER HOUSE", CW / 2, margin + headerH * 0.36);
-      ctx.letterSpacing = "0px";
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = "0px";
+      }
 
       // "G O A  2 0 2 6" subtitle
       ctx.fillStyle = COLORS.cream;
       ctx.globalAlpha = 0.85;
       ctx.font = `400 ${30 * sc}px 'Space Grotesk', sans-serif`;
-      ctx.letterSpacing = `${10 * sc}px`;
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = `${10 * sc}px`;
+      }
       ctx.fillText("G O A   2 0 2 6", CW / 2, margin + headerH * 0.72);
-      ctx.letterSpacing = "0px";
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = "0px";
+      }
       ctx.globalAlpha = 1;
 
       // Pink accent line under header
@@ -123,29 +148,40 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
       const photoY = sectionTop + (sectionH - photoSize) / 2;
 
       // Photo (rounded square)
-      const img = await dataUrlToImage(data.photoDataUrl);
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(photoX, photoY, photoSize, photoSize, 20 * sc);
-      ctx.clip();
-      const imgAspect = img.naturalWidth / img.naturalHeight;
-      let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
-      if (imgAspect > 1) {
-        sw = img.naturalHeight;
-        sx = (img.naturalWidth - sw) / 2;
+      if (img) {
+        ctx.save();
+        drawRoundedRect(ctx, photoX, photoY, photoSize, photoSize, 20 * sc);
+        ctx.clip();
+        const imgAspect = img.naturalWidth / img.naturalHeight;
+        let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+        if (imgAspect > 1) {
+          sw = img.naturalHeight;
+          sx = (img.naturalWidth - sw) / 2;
+        } else {
+          sh = img.naturalWidth;
+          sy = (img.naturalHeight - sh) / 2;
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, photoX, photoY, photoSize, photoSize);
+        ctx.restore();
       } else {
-        sh = img.naturalWidth;
-        sy = (img.naturalHeight - sh) / 2;
+        // Fallback placeholder box
+        ctx.save();
+        ctx.fillStyle = "rgba(11,88,48,0.7)";
+        drawRoundedRect(ctx, photoX, photoY, photoSize, photoSize, 20 * sc);
+        ctx.fill();
+        ctx.fillStyle = COLORS.yellow;
+        ctx.font = `700 ${32 * sc}px 'Space Grotesk', sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("PHOTO", photoX + photoSize / 2, photoY + photoSize / 2);
+        ctx.restore();
       }
-      ctx.drawImage(img, sx, sy, sw, sh, photoX, photoY, photoSize, photoSize);
-      ctx.restore();
 
       // Photo border
       ctx.save();
       ctx.strokeStyle = COLORS.yellow;
       ctx.lineWidth = 3 * sc;
-      ctx.beginPath();
-      ctx.roundRect(photoX, photoY, photoSize, photoSize, 20 * sc);
+      drawRoundedRect(ctx, photoX, photoY, photoSize, photoSize, 20 * sc);
       ctx.stroke();
       ctx.restore();
 
@@ -169,10 +205,10 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
       let textY = sectionTop + 70 * sc;
 
       const fields: { label: string; value: string; accent?: boolean }[] = [
-        { label: "PASSENGER", value: data.name, accent: false },
-        { label: "BUILDER CLASS", value: data.builderTitle, accent: true },
-        { label: "ROLE / STACK", value: data.role },
-        { label: "X HANDLE", value: data.handle ? `@${data.handle}` : "—" },
+        { label: "PASSENGER", value: data.name || "BUILDER", accent: false },
+        { label: "BUILDER CLASS", value: data.builderTitle || "CHAD BUILDER", accent: true },
+        { label: "ROLE / STACK", value: data.role || "FULL-STACK", accent: false },
+        { label: "X HANDLE", value: data.handle ? `@${data.handle}` : "—", accent: false },
       ];
 
       for (const field of fields) {
@@ -181,12 +217,16 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
         ctx.font = `600 ${labelSize}px 'Inter', sans-serif`;
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.letterSpacing = `${2 * sc}px`;
+        if ("letterSpacing" in ctx) {
+          (ctx as unknown as { letterSpacing: string }).letterSpacing = `${2 * sc}px`;
+        }
         ctx.fillText(field.label, textX, textY);
 
         ctx.fillStyle = field.accent ? COLORS.yellow : COLORS.cream;
         ctx.font = `700 ${valueSize}px 'Space Grotesk', sans-serif`;
-        ctx.letterSpacing = "0px";
+        if ("letterSpacing" in ctx) {
+          (ctx as unknown as { letterSpacing: string }).letterSpacing = "0px";
+        }
 
         // Truncate if needed
         let val = field.value;
@@ -220,21 +260,16 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
       ctx.save();
       ctx.strokeStyle = "rgba(245,230,66,0.35)";
       ctx.lineWidth = 2 * sc;
-      ctx.setLineDash([10 * sc, 8 * sc]);
+      ctx.setLineDash([14 * sc, 10 * sc]);
       ctx.beginPath();
-      ctx.moveTo(circleR, stubY);
-      ctx.lineTo(CW - circleR, stubY);
+      ctx.moveTo(circleR + 10 * sc, stubY);
+      ctx.lineTo(CW - circleR - 10 * sc, stubY);
       ctx.stroke();
       ctx.restore();
 
-      // ── Flight info row ─────────────────────────────────────
+      // ── Flight info section (bottom ticket body) ─────────────
       const flightY = stubY + 20 * sc;
-      const flightH = 160 * sc;
-
-      ctx.save();
-      ctx.fillStyle = "rgba(0,0,0,0.2)";
-      ctx.fillRect(margin, flightY, CW - margin * 2, flightH);
-      ctx.restore();
+      const flightH = 340 * sc;
 
       // FROM → TO
       ctx.save();
@@ -243,12 +278,16 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
       ctx.font = `500 ${18 * sc}px 'Inter', sans-serif`;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      ctx.letterSpacing = `${2 * sc}px`;
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = `${2 * sc}px`;
+      }
       ctx.fillText("FROM", margin + 40 * sc, flightY + 24 * sc);
       ctx.textAlign = "right";
       ctx.fillText("TO", CW - margin - 40 * sc, flightY + 24 * sc);
       ctx.globalAlpha = 1;
-      ctx.letterSpacing = "0px";
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = "0px";
+      }
 
       ctx.fillStyle = COLORS.yellow;
       ctx.font = `900 ${42 * sc}px 'Space Grotesk', sans-serif`;
@@ -267,7 +306,7 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
       // Seat / Gate / Date
       const infoY = flightY + flightH - 30 * sc;
       const infos = [
-        { label: "SEAT", value: data.seat },
+        { label: "SEAT", value: data.seat || "01A" },
         { label: "GATE", value: "HHG-26" },
         { label: "DATE", value: "28-31 OCT 2026" },
       ];
@@ -280,44 +319,23 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
         ctx.font = `600 ${16 * sc}px 'Inter', sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "bottom";
-        ctx.letterSpacing = `${2 * sc}px`;
+        if ("letterSpacing" in ctx) {
+          (ctx as unknown as { letterSpacing: string }).letterSpacing = `${2 * sc}px`;
+        }
         ctx.fillText(infos[i].label, ix, infoY - 24 * sc);
         ctx.fillStyle = COLORS.cream;
         ctx.font = `700 ${24 * sc}px 'Space Grotesk', sans-serif`;
-        ctx.letterSpacing = "0px";
+        if ("letterSpacing" in ctx) {
+          (ctx as unknown as { letterSpacing: string }).letterSpacing = "0px";
+        }
         ctx.fillText(infos[i].value, ix, infoY);
         ctx.restore();
       }
 
       // ── Barcode section ─────────────────────────────────────
       const barcodeY = flightY + flightH + 20 * sc;
-      const barcodeH = CH - barcodeY - margin - 60 * sc;
-      const barcodeW = (CW - margin * 2) * 0.65;
-      const barcodeX = margin + 40 * sc;
-
-      drawBarcode(ctx, barcodeX, barcodeY, barcodeW, barcodeH, COLORS.cream);
-
-      // QR placeholder (concentric squares)
-      const qrSize = barcodeH;
-      const qrX = CW - margin - 40 * sc - qrSize;
-      ctx.save();
-      ctx.strokeStyle = COLORS.cream;
-      ctx.lineWidth = 3 * sc;
-      for (let i = 0; i < 4; i++) {
-        const s = qrSize - i * qrSize * 0.22;
-        ctx.strokeRect(
-          qrX + (qrSize - s) / 2,
-          barcodeY + (qrSize - s) / 2,
-          s,
-          s
-        );
-      }
-      ctx.fillStyle = COLORS.cream;
-      ctx.font = `${12 * sc}px 'Inter', sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("QR", qrX + qrSize / 2, barcodeY + qrSize / 2);
-      ctx.restore();
+      const barcodeH = 90 * sc;
+      drawBarcode(ctx, margin + 40 * sc, barcodeY, CW - margin * 2 - 80 * sc, barcodeH, COLORS.yellow);
 
       // ── Footer ──────────────────────────────────────────────
       const footerY = CH - margin - 50 * sc;

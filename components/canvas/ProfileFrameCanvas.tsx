@@ -6,6 +6,7 @@ import {
   drawArcText,
   drawPalmOrnament,
   drawSunriseGradient,
+  drawRoundedRect,
   dataUrlToImage,
 } from "@/lib/canvasRender";
 import type { CanvasHandle } from "@/lib/types";
@@ -18,9 +19,7 @@ interface ProfileFrameCanvasProps {
 
 export type { CanvasHandle };
 
-const SIZE = 1080;
-const DPR = 2;
-const CANVAS_SIZE = SIZE * DPR;
+const CANVAS_SIZE = 1080;
 
 const ProfileFrameCanvas = forwardRef<CanvasHandle, ProfileFrameCanvasProps>(
   function ProfileFrameCanvas({ photoDataUrl, circular = false, onReady }, ref) {
@@ -28,56 +27,71 @@ const ProfileFrameCanvas = forwardRef<CanvasHandle, ProfileFrameCanvasProps>(
 
     useImperativeHandle(ref, () => ({
       getCanvas: () => canvasRef.current,
-      getDataUrl: () => canvasRef.current?.toDataURL("image/png") ?? "",
-      toBlob: (type = "image/png", quality = 0.92) =>
+      getDataUrl: () => canvasRef.current?.toDataURL("image/jpeg", 0.92) ?? "",
+      toBlob: (type = "image/jpeg", quality = 0.92) =>
         new Promise((resolve) => canvasRef.current?.toBlob(resolve, type, quality) ?? resolve(null)),
     }));
 
     useEffect(() => {
-      if (!photoDataUrl) return;
-      drawFrame();
+      let isMounted = true;
+      async function prepareAndDraw() {
+        let loadedImg: HTMLImageElement | null = null;
+        if (photoDataUrl) {
+          try {
+            loadedImg = await dataUrlToImage(photoDataUrl);
+          } catch (err) {
+            console.warn("ProfileFrameCanvas photo preload warning:", err);
+          }
+        }
+        if (isMounted && canvasRef.current) {
+          drawCardSync(loadedImg);
+        }
+      }
+      prepareAndDraw();
+      return () => {
+        isMounted = false;
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [photoDataUrl, circular]);
 
-    async function drawFrame() {
+    function drawCardSync(img: HTMLImageElement | null) {
       const canvas = canvasRef.current;
       if (!canvas) return;
-
       const ctx = canvas.getContext("2d")!;
       const S = CANVAS_SIZE;
 
-      // ── Background ─────────────────────────────────────────
+      // ── Sunrise background ───────────────────────────────────
       drawSunriseGradient(ctx, 0, 0, S, S);
 
       // ── Photo (fill square, optionally clipped to circle) ──
-      const img = await dataUrlToImage(photoDataUrl);
       const padding = S * 0.08;
       const photoSize = S - padding * 2;
       const photoX = padding;
       const photoY = padding;
 
-      ctx.save();
-      if (circular) {
-        ctx.beginPath();
-        ctx.arc(S / 2, S / 2, photoSize / 2, 0, Math.PI * 2);
-        ctx.clip();
-      } else {
-        ctx.beginPath();
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, S * 0.04);
-        ctx.clip();
+      if (img) {
+        ctx.save();
+        if (circular) {
+          ctx.beginPath();
+          ctx.arc(S / 2, S / 2, photoSize / 2, 0, Math.PI * 2);
+          ctx.clip();
+        } else {
+          drawRoundedRect(ctx, photoX, photoY, photoSize, photoSize, S * 0.04);
+          ctx.clip();
+        }
+        // Cover-fit the image
+        const imgAspect = img.naturalWidth / img.naturalHeight;
+        let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+        if (imgAspect > 1) {
+          sw = img.naturalHeight;
+          sx = (img.naturalWidth - sw) / 2;
+        } else {
+          sh = img.naturalWidth;
+          sy = (img.naturalHeight - sh) / 2;
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, photoX, photoY, photoSize, photoSize);
+        ctx.restore();
       }
-      // Cover-fit the image
-      const imgAspect = img.naturalWidth / img.naturalHeight;
-      let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
-      if (imgAspect > 1) {
-        sw = img.naturalHeight;
-        sx = (img.naturalWidth - sw) / 2;
-      } else {
-        sh = img.naturalWidth;
-        sy = (img.naturalHeight - sh) / 2;
-      }
-      ctx.drawImage(img, sx, sy, sw, sh, photoX, photoY, photoSize, photoSize);
-      ctx.restore();
 
       // ── Ring border ─────────────────────────────────────────
       const ringX = S / 2;
@@ -121,8 +135,7 @@ const ProfileFrameCanvas = forwardRef<CanvasHandle, ProfileFrameCanvasProps>(
       const badgeH = S * 0.08;
       ctx.save();
       ctx.fillStyle = COLORS.pink;
-      ctx.beginPath();
-      ctx.roundRect(badgeX, badgeY, badgeW, badgeH, S * 0.012);
+      drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, S * 0.012);
       ctx.fill();
       ctx.fillStyle = COLORS.white;
       ctx.font = `bold ${S * 0.038}px 'Space Grotesk', sans-serif`;
@@ -133,10 +146,6 @@ const ProfileFrameCanvas = forwardRef<CanvasHandle, ProfileFrameCanvasProps>(
 
       // ── Corner palm ornaments ───────────────────────────────
       ctx.globalAlpha = 0.35;
-      drawPalmOrnament(ctx, S * 0.04, S * 0.04, S * 0.07, COLORS.yellow);
-      ctx.save();
-      ctx.translate(S * 0.96, S * 0.04);
-      ctx.scale(-1, 1);
       drawPalmOrnament(ctx, 0, 0, S * 0.07, COLORS.yellow);
       ctx.restore();
       ctx.globalAlpha = 1;

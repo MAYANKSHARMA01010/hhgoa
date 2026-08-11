@@ -36,20 +36,33 @@ export default function StepResult({
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    // Small delay to ensure canvas is rendered
-    const t = setTimeout(async () => {
-      const handle = canvasRef.current;
-      if (!handle) return;
-      const dataUrl = handle.getDataUrl();
-      setPreviewUrl(dataUrl);
+    let attempts = 0;
+    const maxAttempts = 30;
 
-      // Compute sizes
-      const jpgBlob = await handle.toBlob("image/jpeg", 0.88);
-      if (jpgBlob) setJpegSize(formatBytes(jpgBlob.size));
-      const pngBlob = await handle.toBlob("image/png");
-      if (pngBlob) setPngSize(formatBytes(pngBlob.size));
-    }, 200);
-    return () => clearTimeout(t);
+    const interval = setInterval(async () => {
+      attempts++;
+      const handle = canvasRef.current;
+      if (handle) {
+        const dataUrl = handle.getDataUrl();
+        if (dataUrl && dataUrl.length > 100) {
+          clearInterval(interval);
+          setPreviewUrl(dataUrl);
+
+          // Compute file sizes
+          const jpgBlob = await handle.toBlob("image/jpeg", 0.88);
+          if (jpgBlob) setJpegSize(formatBytes(jpgBlob.size));
+          const pngBlob = await handle.toBlob("image/png");
+          if (pngBlob) setPngSize(formatBytes(pngBlob.size));
+          return;
+        }
+      }
+
+      if (attempts >= maxAttempts) {
+        clearInterval(interval);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
   }, [canvasRef]);
 
   async function handleDownload() {

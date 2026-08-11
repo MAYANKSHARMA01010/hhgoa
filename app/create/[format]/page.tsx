@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, use } from "react";
+import { useState, useRef, useCallback, useEffect, use } from "react";
 import Link from "next/link";
 import StepUpload from "@/components/steps/StepUpload";
 import StepCrop from "@/components/steps/StepCrop";
@@ -76,6 +76,42 @@ export default function CreatePage({
 
   // Canvas ref
   const canvasRef = useRef<CanvasHandle>(null);
+
+  // Restore saved state from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedCropped = localStorage.getItem("hhgoa_cropped_photo");
+      const savedFormData = localStorage.getItem("hhgoa_form_data");
+      if (savedCropped) setCroppedPhoto(savedCropped);
+      if (savedFormData) {
+        const parsed = JSON.parse(savedFormData);
+        if (parsed.name) setFormData((prev) => ({ ...prev, ...parsed }));
+      }
+    } catch (e) {
+      console.warn("Could not read from localStorage:", e);
+    }
+  }, []);
+
+  // Save state to localStorage when updated
+  useEffect(() => {
+    if (croppedPhoto) {
+      try {
+        localStorage.setItem("hhgoa_cropped_photo", croppedPhoto);
+      } catch (e) {
+        console.warn("Could not write croppedPhoto to localStorage:", e);
+      }
+    }
+  }, [croppedPhoto]);
+
+  useEffect(() => {
+    if (formData.name) {
+      try {
+        localStorage.setItem("hhgoa_form_data", JSON.stringify(formData));
+      } catch (e) {
+        console.warn("Could not write formData to localStorage:", e);
+      }
+    }
+  }, [formData]);
 
   // Steps applicable per format
   const stepsForFormat: Step[] =
@@ -432,8 +468,8 @@ export default function CreatePage({
 
           {step === "render" && (
             <>
-              {/* Canvas (hidden, used for rendering) */}
-              <div className="hidden">
+              {/* Offscreen Canvas Container (rendered in DOM tree for high-res 2D drawing) */}
+              <div style={{ position: "fixed", left: -9999, top: -9999, opacity: 0, pointerEvents: "none" }}>
                 {format === "profile" && croppedPhoto && (
                   <ProfileFrameCanvas
                     ref={canvasRef}

@@ -94,18 +94,26 @@ const TeamFrameCanvas = forwardRef<CanvasHandle, TeamFrameCanvasProps>(
       ctx.fillStyle = COLORS.cream;
       ctx.globalAlpha = 0.75;
       ctx.font = `400 ${22 * sc}px 'Space Grotesk', sans-serif`;
-      ctx.letterSpacing = `${6 * sc}px`;
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = `${6 * sc}px`;
+      }
       ctx.fillText("G O A  2 0 2 6", 52 * sc, headerH * 0.72);
-      ctx.letterSpacing = "0px";
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = "0px";
+      }
       ctx.globalAlpha = 1;
 
       // "TEAM AT HH GOA" right side
       ctx.fillStyle = COLORS.pink;
       ctx.font = `700 ${20 * sc}px 'Inter', sans-serif`;
       ctx.textAlign = "right";
-      ctx.letterSpacing = `${3 * sc}px`;
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = `${3 * sc}px`;
+      }
       ctx.fillText("TEAM AT HH GOA 2026", CW - 50 * sc, headerH * 0.42);
-      ctx.letterSpacing = "0px";
+      if ("letterSpacing" in ctx) {
+        (ctx as unknown as { letterSpacing: string }).letterSpacing = "0px";
+      }
 
       // Event date
       ctx.fillStyle = COLORS.cream;
