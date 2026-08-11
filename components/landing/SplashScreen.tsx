@@ -9,8 +9,8 @@ export default function SplashScreen() {
 
   useEffect(() => {
     // Display splash for ~1.5s hold time, then tear open over 0.5s (2.0s total max)
-    const t1 = setTimeout(() => setPhase("tear"), 1000);
-    const t2 = setTimeout(() => setPhase("gone"), 1500);
+    const t1 = setTimeout(() => setPhase("tear"), 1500);
+    const t2 = setTimeout(() => setPhase("gone"), 2000);
 
     return () => [t1, t2].forEach(clearTimeout);
   }, []);
@@ -138,27 +138,27 @@ function TicketFace({ contentVisible }: { contentVisible: boolean }) {
 
       {/* ── Outer Decorative Border Frame ── */}
       <div
-        className="absolute inset-4 sm:inset-6 pointer-events-none rounded-lg"
+        className="absolute inset-3 sm:inset-6 pointer-events-none rounded-lg"
         style={{
           border: "2px solid rgba(254,225,1,0.3)",
           boxShadow: "inset 0 0 0 4px rgba(2,56,27,0.8), inset 0 0 0 6px rgba(232,24,122,0.4)",
         }}
       >
         {/* Corner Ornaments */}
-        <span className="absolute top-2 left-2 text-yellow-300 opacity-60 text-xs">✦</span>
-        <span className="absolute top-2 right-2 text-yellow-300 opacity-60 text-xs">✦</span>
-        <span className="absolute bottom-2 left-2 text-yellow-300 opacity-60 text-xs">✦</span>
-        <span className="absolute bottom-2 right-2 text-yellow-300 opacity-60 text-xs">✦</span>
+        <span className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 text-yellow-300 opacity-60 text-xs">✦</span>
+        <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 text-yellow-300 opacity-60 text-xs">✦</span>
+        <span className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 text-yellow-300 opacity-60 text-xs">✦</span>
+        <span className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 text-yellow-300 opacity-60 text-xs">✦</span>
       </div>
 
       {/* ── Palm Tree Silhouette Overlay (Left & Right) ── */}
-      <div className="absolute left-0 top-0 bottom-0 pointer-events-none opacity-25 w-24 sm:w-40 flex items-center">
+      <div className="absolute left-0 top-0 bottom-0 pointer-events-none opacity-20 w-16 sm:w-40 flex items-center">
         <svg viewBox="0 0 100 200" fill="#FEE101" className="w-full h-auto">
           <path d="M10 200 Q 30 140 0 80 Q 20 60 50 70 Q 30 40 10 50 Q 50 20 80 40 Q 60 70 70 90 Q 40 120 10 200 Z" />
           <path d="M0 160 Q 40 110 10 60 Q 60 50 70 80 Q 40 110 0 160 Z" opacity="0.6" />
         </svg>
       </div>
-      <div className="absolute right-0 top-0 bottom-0 pointer-events-none opacity-25 w-24 sm:w-40 flex items-center transform scale-x-[-1]">
+      <div className="absolute right-0 top-0 bottom-0 pointer-events-none opacity-20 w-16 sm:w-40 flex items-center transform scale-x-[-1]">
         <svg viewBox="0 0 100 200" fill="#FEE101" className="w-full h-auto">
           <path d="M10 200 Q 30 140 0 80 Q 20 60 50 70 Q 30 40 10 50 Q 50 20 80 40 Q 60 70 70 90 Q 40 120 10 200 Z" />
           <path d="M0 160 Q 40 110 10 60 Q 60 50 70 80 Q 40 110 0 160 Z" opacity="0.6" />
@@ -194,22 +194,22 @@ function TicketFace({ contentVisible }: { contentVisible: boolean }) {
       ════════════════════════════════════════ */}
       <div
         className="absolute inset-x-0 top-0 flex flex-col items-center justify-center px-4"
-        style={{ height: "50vh", paddingTop: "2vh" }}
+        style={{ height: "50vh", paddingTop: "1vh" }}
       >
         {/* Team OBOW Vintage Badge */}
         <div
-          className="flex items-center gap-2 px-4 py-1 rounded-full mb-3"
+          className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 rounded-full mb-2 sm:mb-3"
           style={{
             background: "rgba(232,24,122,0.15)",
             border: "1.5px solid #E8187A",
             boxShadow: "0 0 15px rgba(232,24,122,0.3)",
           }}
         >
-          <span className="text-pink-400 text-xs">✦</span>
-          <span className="font-mono font-black text-xs sm:text-sm text-yellow-300 tracking-[0.35em] uppercase">
+          <span className="text-pink-400 text-[10px] sm:text-xs">✦</span>
+          <span className="font-mono font-black text-[10px] sm:text-sm text-yellow-300 tracking-[0.25em] sm:tracking-[0.35em] uppercase">
             TEAM OBOW
           </span>
-          <span className="text-pink-400 text-xs">✦</span>
+          <span className="text-pink-400 text-[10px] sm:text-xs">✦</span>
         </div>
 
         {/* HACKER HOUSE Typography */}
@@ -223,10 +223,10 @@ function TicketFace({ contentVisible }: { contentVisible: boolean }) {
           <h1
             className="font-mono font-black uppercase relative z-10 leading-[0.85]"
             style={{
-              fontSize: "clamp(3.5rem, 10.5vw, 8.5rem)",
+              fontSize: "clamp(2.5rem, 9vw, 8.5rem)",
               color: "#FEE101",
               letterSpacing: "-0.03em",
-              textShadow: "0 4px 0 #E8187A, 0 8px 0 #01210f, 0 14px 25px rgba(0,0,0,0.6)",
+              textShadow: "0 3px 0 #E8187A, 0 6px 0 #01210f, 0 10px 20px rgba(0,0,0,0.6)",
             }}
           >
             HACKER<br />HOUSE
@@ -238,11 +238,11 @@ function TicketFace({ contentVisible }: { contentVisible: boolean }) {
           BOTTOM HALF CONTENT (50vh – 100vh)
       ════════════════════════════════════════ */}
       <div
-        className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-center px-4"
+        className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-center px-3 sm:px-6"
         style={{ height: "50vh", paddingBottom: "2vh" }}
       >
         {/* Glowing Hindi Goa Badge */}
-        <div className="relative mb-3">
+        <div className="relative mb-2 sm:mb-3 flex items-center justify-center">
           <div
             className="absolute inset-0 blur-xl opacity-60 rounded-full"
             style={{ background: "#E8187A" }}
@@ -255,30 +255,30 @@ function TicketFace({ contentVisible }: { contentVisible: boolean }) {
             priority
             loading="eager"
             className="relative z-10 object-contain drop-shadow-[0_4px_12px_rgba(232,24,122,0.9)]"
-            style={{ height: "clamp(3.2rem, 7.5vh, 5.5rem)", width: "auto" }}
+            style={{ height: "clamp(2.4rem, 6vh, 5.5rem)", width: "auto" }}
           />
         </div>
 
-        {/* Event Date & Location Tag */}
+        {/* Event Date & Location Tag - Fully Responsive */}
         <div
-          className="flex items-center justify-center gap-3 px-5 py-1.5 rounded-md mb-2"
+          className="flex flex-row items-center justify-center gap-1.5 sm:gap-3 px-3 sm:px-5 py-1 sm:py-1.5 rounded-md mb-2 max-w-[95vw] sm:max-w-none text-center"
           style={{
-            background: "rgba(1,33,15,0.75)",
-            border: "1px solid rgba(254,225,1,0.25)",
+            background: "rgba(1,33,15,0.85)",
+            border: "1px solid rgba(254,225,1,0.3)",
             boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
           }}
         >
-          <span className="font-mono font-bold text-xs sm:text-sm text-yellow-300 tracking-[0.2em]">
+          <span className="font-mono font-bold text-[10px] xs:text-xs sm:text-sm text-yellow-300 tracking-[0.1em] sm:tracking-[0.2em] whitespace-nowrap">
             GOA, INDIA
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
-          <span className="font-mono font-bold text-yellow-300 tracking-[0.2em]">
+          <span className="w-1.5 h-1.5 rounded-full bg-pink-500 flex-shrink-0" />
+          <span className="font-mono font-bold text-[10px] xs:text-xs sm:text-sm text-yellow-300 tracking-[0.1em] sm:tracking-[0.2em] whitespace-nowrap">
             OCT 28 – 31, 2026
           </span>
         </div>
 
-        {/* Subtitle / Hashtag */}
-        <p className="font-mono text-[10px] sm:text-xs text-yellow-200/50 tracking-[0.3em] uppercase">
+        {/* Subtitle / Hashtag - Fully Responsive */}
+        <p className="font-mono text-[9px] xs:text-[10px] sm:text-xs text-yellow-200/60 tracking-[0.12em] sm:tracking-[0.25em] uppercase text-center max-w-[90vw] leading-tight px-1">
           #FRAMEINGOA &nbsp;·&nbsp; OFFICIAL BUILDER FRAME STUDIO
         </p>
       </div>
