@@ -21,7 +21,16 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  ? process.env.NEXT_PUBLIC_APP_URL.startsWith("http")
+    ? process.env.NEXT_PUBLIC_APP_URL
+    : `https://${process.env.NEXT_PUBLIC_APP_URL}`
+  : process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: "HH Goa 2026 Frame Studio | #FrameInGoa",
   description:
     "Create your Hacker House Goa 2026 branded frame, Builder ID card, or Team Frame in seconds. Upload, crop, customize — download & share to X instantly.",
@@ -31,10 +40,10 @@ export const metadata: Metadata = {
     description:
       "Generate your Hacker House Goa 2026 pass in seconds. #FrameInGoa",
     type: "website",
-    url: "https://hhgoa-frame.vercel.app",
+    url: appUrl,
     images: [
       {
-        url: "/og-default.png",
+        url: "/assets/frame-a.svg",
         width: 1200,
         height: 630,
         alt: "HH Goa 2026 Frame Studio",
@@ -46,7 +55,7 @@ export const metadata: Metadata = {
     title: "HH Goa 2026 Frame Studio",
     description:
       "Generate your Hacker House Goa 2026 pass in seconds. #FrameInGoa",
-    images: ["/og-default.png"],
+    images: ["/assets/frame-a.svg"],
   },
   other: {
     "apple-mobile-web-app-capable": "yes",
@@ -65,19 +74,9 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${spaceGrotesk.variable} ${spaceMono.variable}`}
     >
-      <head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover"
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-      </head>
-      <body className="font-body min-h-screen bg-green-deep">{children}</body>
+      <body className="font-sans bg-green-dark text-cream antialiased selection:bg-pink-brand selection:text-white">
+        {children}
+      </body>
     </html>
   );
 }

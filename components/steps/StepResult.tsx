@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { canvasToBlob, formatBytes } from "@/lib/canvasRender";
 import { encodeShareState } from "@/lib/shareState";
+import { apiClient, getBaseUrl } from "@/lib/api";
 
 interface StepResultProps {
   canvasRef: React.RefObject<{
@@ -77,8 +78,9 @@ export default function StepResult({
       const blob = await handle.toBlob("image/png");
       if (!blob) return;
 
-      // Upload to blob storage
-      let generatedShareUrl = window.location.origin;
+      const origin = getBaseUrl();
+      let generatedShareUrl = origin;
+
       try {
         const formData = new FormData();
         formData.append("file", blob, "hhgoa-frame.png");
@@ -86,14 +88,14 @@ export default function StepResult({
         formData.append("format", format);
         if (builderTitle) formData.append("builderTitle", builderTitle);
 
-        const res = await fetch("/api/share", {
-          method: "POST",
-          body: formData,
+        const res = await apiClient.post("/api/share", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
 
-        if (res.ok) {
-          const { shareId } = await res.json();
-          generatedShareUrl = `${window.location.origin}/share/${shareId}`;
+        if (res.data?.shareId) {
+          generatedShareUrl = `${origin}/share/${res.data.shareId}`;
         }
       } catch {
         // Fallback: encode minimal state in URL
@@ -103,136 +105,147 @@ export default function StepResult({
           format,
           builderTitle,
         });
-        generatedShareUrl = `${window.location.origin}/share/${state}`;
+        generatedShareUrl = `${origin}/share/${state}`;
       }
 
       setShareUrl(generatedShareUrl);
 
-      const text = `Just built my Hacker House Goa 2026 pass ⚡ Generate yours in seconds → ${generatedShareUrl} #FrameInGoa`;
-
-      // Try native share with file attachment (works on iOS/Android)
-      if (typeof navigator.share === "function") {
-        try {
-          const file = new File([blob], "hhgoa-frame.png", { type: "image/png" });
-          await navigator.share({
-            files: [file],
-            title: "HH Goa 2026 Builder Pass",
-            text,
-          });
-          return;
-        } catch {
-          // User cancelled or not supported — fall through
-        }
-      }
-
-      // Fallback: Twitter intent
-      const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-      window.open(tweetUrl, "_blank", "noopener,noreferrer");
+      // Open Twitter share modal
+      const text = encodeURIComponent(
+        `Just generated my official Hacker House Goa 2026 ${
+          format === "builder-id" ? "Builder ID Card" : "Frame"
+        }! 🌴✨\n\nBuild with Team OBOW at #FrameInGoa\n`
+      );
+      const url = encodeURIComponent(generatedShareUrl);
+      window.open(
+        `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    } catch (err) {
+      console.error("Share error:", err);
     } finally {
       setSharing(false);
     }
   }
 
   return (
-    <div className="w-full flex flex-col gap-6">
-      {/* Preview */}
-      <div
-        className="relative rounded-2xl overflow-hidden"
-        style={{ background: "#0B6839" }}
-      >
+    <div className="w-full flex flex-col gap-6 select-none">
+      {/* Preview Card */}
+      <div className="relative rounded-2xl overflow-hidden shadow-2xl p-3" style={{ background: "rgba(1,21,12,0.9)", border: "2px solid #FEE101" }}>
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             ref={imgRef}
             src={previewUrl}
-            alt="Your HH Goa 2026 frame"
-            className="w-full h-auto block"
-            style={{ imageRendering: "crisp-edges" }}
+            alt="Generated Frame Preview"
+            className="w-full h-auto rounded-xl object-contain shadow-md"
+            style={{ maxHeight: 480 }}
           />
         ) : (
-          <div className="skeleton w-full" style={{ height: 320 }} />
-        )}
-      </div>
-
-      {/* Download format toggle */}
-      <div className="flex gap-2">
-        {(["jpeg", "png"] as const).map((fmt) => (
-          <button
-            key={fmt}
-            onClick={() => setDownloadFormat(fmt)}
-            className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
-            style={{
-              background:
-                downloadFormat === fmt ? "rgba(245,230,66,0.15)" : "rgba(11,104,57,0.3)",
-              color: downloadFormat === fmt ? "#F5E642" : "#F5F0E8",
-              border: `1px solid ${downloadFormat === fmt ? "rgba(245,230,66,0.4)" : "rgba(245,230,66,0.1)"}`,
-            }}
+          <div
+            className="skeleton w-full rounded-xl flex items-center justify-center font-mono text-xs text-yellow-300"
+            style={{ height: 360 }}
           >
-            {fmt.toUpperCase()}
-            {fmt === "jpeg" && jpegSize && (
-              <span className="ml-1 opacity-60">· {jpegSize}</span>
-            )}
-            {fmt === "png" && pngSize && (
-              <span className="ml-1 opacity-60">· {pngSize}</span>
-            )}
-          </button>
-        ))}
+            RENDERING HIGH-RES FRAME...
+          </div>
+        )}
       </div>
 
-      {/* Download button */}
-      <button
-        onClick={handleDownload}
-        className="w-full py-4 rounded-xl font-bold text-lg text-green-deep btn-press flex items-center justify-center gap-2"
-        style={{ background: "#F5E642" }}
+      {/* Format Switcher (JPEG / PNG) */}
+      <div
+        className="flex items-center justify-between p-3 rounded-xl"
+        style={{ background: "rgba(1,21,12,0.8)", border: "1px solid rgba(254,225,1,0.2)" }}
       >
-        ⬇️ Download {downloadFormat.toUpperCase()}
-      </button>
+        <span className="font-mono text-xs font-bold text-yellow-300 uppercase tracking-wider">
+          ✦ Select Export Format
+        </span>
+        <div className="flex gap-2">
+          {(["jpeg", "png"] as const).map((fmt) => (
+            <button
+              key={fmt}
+              type="button"
+              onClick={() => setDownloadFormat(fmt)}
+              className="px-3 py-1.5 rounded-lg font-mono text-xs font-bold uppercase transition-all"
+              style={{
+                background: downloadFormat === fmt ? "#FEE101" : "rgba(255,255,255,0.08)",
+                color: downloadFormat === fmt ? "#011a0d" : "#ffffff",
+                border: `1px solid ${downloadFormat === fmt ? "#E8187A" : "rgba(255,255,255,0.15)"}`,
+              }}
+            >
+              {fmt.toUpperCase()}{" "}
+              <span className="text-[10px] opacity-70">
+                ({fmt === "jpeg" ? jpegSize : pngSize})
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {/* Share button */}
-      <button
-        onClick={handleShare}
-        disabled={sharing}
-        className="w-full py-4 rounded-xl font-bold text-lg btn-press flex items-center justify-center gap-2 disabled:opacity-60"
-        style={{
-          background: "rgba(232,24,122,0.2)",
-          color: "#E8187A",
-          border: "1px solid rgba(232,24,122,0.4)",
-        }}
-      >
-        {sharing ? (
-          <>
-            <span className="animate-spin">⚡</span>
-            Uploading for share…
-          </>
-        ) : (
-          <>𝕏 Share to X</>
-        )}
-      </button>
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={!previewUrl}
+          className="flex-1 py-4 rounded-xl font-mono font-black text-sm text-[#011a0d] uppercase tracking-[0.18em] transition-all disabled:opacity-50"
+          style={{
+            background: "#FEE101",
+            border: "2px solid #E8187A",
+            boxShadow: "0 6px 20px rgba(254,225,1,0.3)",
+          }}
+        >
+          ⬇ DOWNLOAD {downloadFormat.toUpperCase()}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={!previewUrl || sharing}
+          className="flex-1 py-4 rounded-xl font-mono font-black text-sm text-white uppercase tracking-[0.18em] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+          style={{
+            background: "linear-gradient(135deg, #E8187A 0%, #a80f55 100%)",
+            border: "2px solid #FEE101",
+            boxShadow: "0 6px 20px rgba(232,24,122,0.35)",
+          }}
+        >
+          {sharing ? (
+            <>
+              <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              UPLOADING...
+            </>
+          ) : (
+            <>✦ SHARE TO X (TWITTER)</>
+          )}
+        </button>
+      </div>
 
       {shareUrl && (
         <div
-          className="rounded-xl p-3 text-xs"
-          style={{ background: "rgba(11,104,57,0.3)", border: "1px solid rgba(245,230,66,0.15)" }}
+          className="p-3 rounded-xl font-mono text-xs text-center break-all flex flex-col gap-1"
+          style={{ background: "rgba(1,21,12,0.9)", border: "1px solid rgba(254,225,1,0.3)" }}
         >
-          <p className="text-cream/60 mb-1">Share link (copy for desktop):</p>
+          <span className="text-yellow-300 font-bold uppercase tracking-widest text-[10px]">
+            ✓ SHAREABLE LINK GENERATED:
+          </span>
           <a
             href={shareUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-yellow-brand underline break-all"
+            className="text-pink-400 underline font-bold"
           >
             {shareUrl}
           </a>
         </div>
       )}
 
-      {/* Make another */}
+      {/* Reset button */}
       <button
+        type="button"
         onClick={onReset}
-        className="w-full py-3 rounded-xl text-cream/60 text-sm font-medium hover:text-cream transition-colors"
-        style={{ border: "1px solid rgba(245,240,232,0.1)" }}
+        className="w-full py-2.5 font-mono text-xs text-white/50 hover:text-yellow-300 uppercase tracking-widest transition-colors text-center"
       >
-        ↩ Generate Another
+        ← Create Another Frame
       </button>
     </div>
   );
