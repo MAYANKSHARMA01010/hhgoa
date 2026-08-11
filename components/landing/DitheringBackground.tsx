@@ -2,7 +2,9 @@
 
 import { memo } from "react";
 import { Dithering } from "@paper-design/shaders-react";
-import type { DitheringShape, DitheringType } from "@paper-design/shaders";
+
+type DitheringShape = "simplex" | "wave" | "sphere" | "torus" | "twist" | string;
+type DitheringType = "4x4" | "8x8" | "random" | string;
 
 const MemoizedDithering = memo(Dithering);
 
@@ -23,22 +25,23 @@ export default function DitheringBackground({
   backgroundColor = "#026834",
   speed = 0.25,
   shape = "wave",
-  type = "4x4",
-  pxSize = 5,
+  type = "8x8",
+  pxSize = 3,
+  scale = 1,
 }: DitheringBackgroundProps) {
   return (
     <div
-      className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
+      className="absolute inset-0 pointer-events-none overflow-hidden"
       style={{ backgroundColor }}
     >
       <MemoizedDithering
         colorBack={colorBack}
         colorFront={colorFront}
         speed={speed}
-        shape={shape}
-        type={type}
+        shape={shape as any}
+        type={type as any}
         pxSize={pxSize}
-        style={{ width: "100%", height: "100%" }}
+        scale={scale}
       />
     </div>
   );
