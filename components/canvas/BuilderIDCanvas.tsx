@@ -337,7 +337,7 @@ const BuilderIDCanvas = forwardRef<CanvasHandle, BuilderIDCanvasProps>(
       ctx.fillStyle = COLORS.cream;
       ctx.globalAlpha = 0.5;
       ctx.font = `400 ${16 * sc}px 'Inter', sans-serif`;
-      ctx.fillText("2:47PM Studio · hhgoa.com", CW / 2, footerY + 50 * sc);
+      ctx.fillText("Team OBOW Studio · HH Goa 2026", CW / 2, footerY + 50 * sc);
       ctx.restore();
 
       onReady?.(canvas);

@@ -219,7 +219,7 @@ const TeamFrameCanvas = forwardRef<CanvasHandle, TeamFrameCanvasProps>(
       ctx.globalAlpha = 0.5;
       ctx.font = `400 ${15 * sc}px 'Inter', sans-serif`;
       ctx.textAlign = "right";
-      ctx.fillText("2:47PM Studio · hhgoa.com", CW - 40 * sc, CH - 36 * sc);
+      ctx.fillText("Team OBOW Studio · HH Goa 2026", CW - 40 * sc, CH - 36 * sc);
       ctx.restore();
 
       onReady?.(canvas);

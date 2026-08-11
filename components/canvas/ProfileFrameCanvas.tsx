@@ -148,7 +148,7 @@ const ProfileFrameCanvas = forwardRef<CanvasHandle, ProfileFrameCanvasProps>(
       ctx.font = `${S * 0.018}px 'Inter', sans-serif`;
       ctx.textAlign = "right";
       ctx.textBaseline = "bottom";
-      ctx.fillText("#FrameInGoa · 2:47PM Studio", S - S * 0.04, S - S * 0.03);
+      ctx.fillText("#FrameInGoa · Team OBOW Studio", S - S * 0.04, S - S * 0.03);
       ctx.restore();
 
       onReady?.(canvas);

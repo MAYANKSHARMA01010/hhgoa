@@ -252,7 +252,7 @@ export default function HomePage() {
           <span>
             TEAM <strong style={{ color: "#FEE101" }}>OBOW</strong> &nbsp;·&nbsp; #FRAMEINGOA &nbsp;·&nbsp; GOA 2026
           </span>
-          <span style={{ color: "rgba(254,225,1,0.4)" }}>2:47 PM STUDIO</span>
+          <span style={{ color: "rgba(254,225,1,0.6)" }}>TEAM OBOW STUDIO</span>
         </div>
       </section>
 
@@ -650,13 +650,11 @@ export default function HomePage() {
                 {[
                   ["#FRAMEINGOA ON X", "https://x.com/search?q=%23FrameInGoa"],
                   ["HH GOA 2026", "https://hackerhousegoa.com"],
-                  ["2:47PM STUDIO", "https://x.com/247pmstudio"],
+                  ["TEAM OBOW STUDIO", "/"],
                 ].map(([label, href]) => (
                   <a
                     key={label}
                     href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="block text-xs text-white/60 hover:text-yellow-300 transition-colors mb-2.5 tracking-wider text-decoration-none"
                   >
                     {label}
@@ -673,7 +671,7 @@ export default function HomePage() {
             }}
           >
             <span>© 2026 TEAM OBOW. BUILT FOR HACKER HOUSE GOA 2026.</span>
-            <span>#FRAMEINGOA · 2:47 PM STUDIO</span>
+            <span>#FRAMEINGOA · TEAM OBOW STUDIO</span>
           </div>
         </div>
       </footer>

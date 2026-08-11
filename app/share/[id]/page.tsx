@@ -151,7 +151,7 @@ export default async function SharePage({ params }: SharePageProps) {
         </Link>
 
         <p className="text-center text-cream/40 text-sm">
-          #FrameInGoa · 2:47PM Studio
+          #FrameInGoa · Team OBOW Studio
         </p>
       </div>
     </main>

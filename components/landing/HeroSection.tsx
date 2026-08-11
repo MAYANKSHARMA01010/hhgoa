@@ -68,7 +68,7 @@ export default function HeroSection() {
         }}
       >
         <span>GOA, INDIA &nbsp;·&nbsp; 28 – 31 OCT 2026</span>
-        <span style={{ color: "rgba(255,255,255,0.5)" }}>2:47 PM STUDIO</span>
+        <span style={{ color: "rgba(254,225,1,0.6)" }}>TEAM OBOW STUDIO</span>
       </div>
 
       <style>{`
