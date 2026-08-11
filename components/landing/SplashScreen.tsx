@@ -8,20 +8,9 @@ export default function SplashScreen() {
   const [contentVisible, setContentVisible] = useState(true);
 
   useEffect(() => {
-    // Check if splash was already shown in this browser session
-    try {
-      if (sessionStorage.getItem("hhgoa_splash_seen")) {
-        setPhase("gone");
-        return;
-      }
-      sessionStorage.setItem("hhgoa_splash_seen", "1");
-    } catch {
-      // fallback if sessionStorage unavailable
-    }
-
-    // Snappy splash timeline (fast start, 1s hold, 0.45s quick tear)
-    const t1 = setTimeout(() => setPhase("tear"), 1100);
-    const t2 = setTimeout(() => setPhase("gone"), 1550);
+    // Display splash for ~1.5s hold time, then tear open over 0.5s (2.0s total max)
+    const t1 = setTimeout(() => setPhase("tear"), 1500);
+    const t2 = setTimeout(() => setPhase("gone"), 2000);
 
     return () => [t1, t2].forEach(clearTimeout);
   }, []);
@@ -41,7 +30,7 @@ export default function SplashScreen() {
         style={{
           height: "50%",
           transform: isTearing ? "translateY(-105%) scaleY(0.98)" : "translateY(0) scaleY(1)",
-          transition: isTearing ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+          transition: isTearing ? "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
           willChange: "transform",
           overflow: "hidden",
         }}
@@ -55,7 +44,7 @@ export default function SplashScreen() {
         style={{
           height: "50%",
           transform: isTearing ? "translateY(105%) scaleY(0.98)" : "translateY(0) scaleY(1)",
-          transition: isTearing ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+          transition: isTearing ? "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
           willChange: "transform",
           overflow: "hidden",
         }}
