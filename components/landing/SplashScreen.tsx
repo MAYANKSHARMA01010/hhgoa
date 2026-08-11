@@ -259,21 +259,18 @@ function TicketFace({ contentVisible }: { contentVisible: boolean }) {
           />
         </div>
 
-        {/* Event Date & Location Tag - Fully Responsive */}
+        {/* Location & Studio Tag */}
         <div
-          className="flex flex-row items-center justify-center gap-1.5 sm:gap-3 px-3 sm:px-5 py-1 sm:py-1.5 rounded-md mb-2 max-w-[95vw] sm:max-w-none text-center"
+          className="flex flex-row items-center justify-center gap-2 px-4 sm:px-5 py-1.5 rounded-md mb-2 text-center"
           style={{
             background: "rgba(1,33,15,0.85)",
             border: "1px solid rgba(254,225,1,0.3)",
             boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
           }}
         >
-          <span className="font-mono font-bold text-[10px] xs:text-xs sm:text-sm text-yellow-300 tracking-[0.1em] sm:tracking-[0.2em] whitespace-nowrap">
-            GOA, INDIA
-          </span>
           <span className="w-1.5 h-1.5 rounded-full bg-pink-500 flex-shrink-0" />
-          <span className="font-mono font-bold text-[10px] xs:text-xs sm:text-sm text-yellow-300 tracking-[0.1em] sm:tracking-[0.2em] whitespace-nowrap">
-            OCT 28 – 31, 2026
+          <span className="font-mono font-bold text-xs sm:text-sm text-yellow-300 tracking-[0.2em] uppercase">
+            GOA, INDIA
           </span>
         </div>
 
